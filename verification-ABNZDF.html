@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cancelled Payment — Customer View</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #fff;
+    --accent: #dc2626; /* Cancelled Red */
+    --muted: #64748b;
+    --void-gray: #475569;
+    --border-color: #e2e8f0;
+  }
+  
+  body {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    margin: 0;
+    padding: 24px;
+    color: #0f172a;
+  }
+
+  .wrap { max-width: 840px; margin: 0 auto; position: relative; }
+  
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    padding: 28px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Watermark Effect */
+  .card::after {
+    content: "CANCELLED";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 100px;
+    font-weight: 900;
+    color: rgba(220, 38, 38, 0.05);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  h1 { font-size: 20px; margin: 0 0 8px; color: var(--accent); font-weight: bold; position: relative; z-index: 1; }
+  p.lead { margin: 0; color: var(--muted); font-size: 14px; position: relative; z-index: 1; }
+  
+  .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; position: relative; z-index: 1; }
+  .col { flex: 1; min-width: 180px; }
+  
+  .label { font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+  .value { font-weight: 600; font-size: 15px; }
+  
+  .amount { 
+    font-size: 22px; 
+    color: var(--void-gray); 
+    font-weight: 800; 
+    text-decoration: line-through; 
+  }
+
+  .muted-line { height: 1px; background: #f1f5f9; margin: 20px -28px; }
+  
+  .copy-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+  
+  .copy-box button {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  /* Cancellation Notice */
+  .cancellation-alert {
+    background-color: #fef2f2;
+    border: 1px solid #fee2e2;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    color: #991b1b;
+    border-left: 5px solid #dc2626;
+    position: relative;
+    z-index: 1;
+  }
+
+  .flow-container { display: flex; align-items: center; justify-content: center; margin: 40px 0; position: relative; z-index: 1; }
+  .flow-step { text-align: center; min-width: 160px; }
+  .bank-icon { width: 50px; height: 50px; background: #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: #94a3b8; font-size: 20px; }
+  .status-tag { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-top: 5px; text-transform: uppercase; }
+  .connector { flex: 1; height: 2px; background: #e2e8f0; margin: 0 10px; }
+
+  .btns { display: flex; gap: 10px; margin-top: 20px; position: relative; z-index: 1; }
+  button.main-btn { background: #dc2626; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+  button.sec-btn { background: #f1f5f9; color: #475569; border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+  @media (max-width:768px) { .flow-container { flex-direction: column; gap: 25px; } .connector { display: none; } }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+<div class="wrap">
+  <div style="margin-bottom: 20px;">
+    <svg width="120" height="30" viewBox="0 0 120 30" style="filter: grayscale(1); opacity: 0.7;">
+      <text x="0" y="20" font-family="Arial" font-weight="bold" font-size="20">SWIFT</text>
+    </svg>
+  </div>
+
+  <div class="card">
+    <h1>Transaction Cancelled</h1>
+    <p class="lead">The payment process has been terminated. Funds are being reversed to the sender's account.</p>
+    
+    <div class="muted-line"></div>
+
+    <div class="row">
+      <div class="col">
+        <div class="label">Status</div>
+        <div class="value"><span class="status-tag" style="background:#fee2e2; color:#b91c1c; border: 1px solid #f87171;">CANCELLED</span></div>
+      </div>
+      <div class="col">
+        <div class="label">Amount</div>
+        <div class="value amount">EUR 3,000,000.00</div>
+      </div>
+      <div class="col">
+        <div class="label">Value Date</div>
+        <div class="value">10-Dec-2025</div>
+      </div>
+    </div>
+
+    <!-- Cancellation Notice -->
+    <div class="cancellation-alert">
+      <div style="display: flex; gap: 12px;">
+        <span style="font-size: 20px;">🚫</span>
+        <div>
+          <strong style="text-transform: uppercase;">Payment Rejection Notice:</strong><br>
+          This transaction has been cancelled by <strong>Abu Dhabi Islamic Bank (ADIB)</strong>. 
+          The credit to the beneficiary was not authorized due to internal compliance verification.
+          <br><br>
+          <small>Reason: Transaction cancelled by receiving institution. Funds reversed to Intermediary (COBADEFFXXX).</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="muted-line"></div>
+
+    <div class="row">
+      <div class="col">
+        <div class="label">Ordering Party</div>
+        <div class="value">MMG Capital Limited</div>
+        <div class="small">Sender: Banque Cramer et Cie SA</div>
+        <br>
+        <div class="label">Intended Beneficiary</div>
+        <div class="value">Quick Step General Trading LLC</div>
+        <div class="small">ADIB, Dubai Internet City Branch</div>
+      </div>
+      <div class="col">
+        <div class="label">UETR Code (Void)</div>
+        <div class="value" style="font-family: monospace; color: #94a3b8; text-decoration: line-through; margin-bottom: 15px;">bb162866-d447-11f0-86a8-325096b39f47</div>
+        
+        <div class="label">Instruction Ref</div>
+        <div class="copy-box">
+          <span id="txRef" style="font-weight: 700; color: #94a3b8; text-decoration: line-through;">COBA011125CH86478</span>
+          <button id="copyBtn">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-container">
+      <div class="flow-step">
+        <div class="bank-icon">🏦</div>
+        <div class="bank-name">Cramer SA</div>
+        <div class="status-tag" style="background:#f1f5f9; color:#94a3b8;">RETURNED</div>
+      </div>
+      <div class="connector"></div>
+      <div class="flow-step">
+        <div class="bank-icon">🏦</div>
+        <div class="bank-name">Intermediary</div>
+        <div class="status-tag" style="background:#f1f5f9; color:#94a3b8;">REVERSING</div>
+      </div>
+      <div class="connector"></div>
+      <div class="flow-step">
+        <div class="bank-icon" style="background:#fca5a5; color:#991b1b;">🏦</div>
+        <div class="bank-name">ADIB Dubai</div>
+        <div class="status-tag" style="background:#fee2e2; color:#dc2626;">CANCELLED</div>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button class="main-btn" id="downloadBtn">Download Cancellation Advice</button>
+      <button class="sec-btn" id="helpBtn">Support / FAQ</button>
+    </div>
+  </div>
+
+  <div style="text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px;">
+    Note: This is an automated notification. For details regarding the reversal, please contact your local relationship manager.
+  </div>
+</div>
+
+<script>
+document.getElementById('copyBtn').addEventListener('click', function(){
+  const txt = document.getElementById('txRef').innerText;
+  navigator.clipboard.writeText(txt).then(() => {
+    const old = this.innerText; this.innerText = 'Copied';
+    setTimeout(() => this.innerText = old, 1200);
+  });
+});
+
+document.getElementById('downloadBtn').addEventListener('click', function(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  
+  doc.setTextColor(220, 38, 38);
+  doc.setFontSize(18);
+  doc.text("ADVICE OF CANCELLATION", 20, 25);
+  
+  doc.setDrawColor(220, 38, 38);
+  doc.line(20, 30, 190, 30);
+  
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(11);
+  doc.text(`Transaction Status: CANCELLED / REVERSED`, 20, 45);
+  doc.text(`UETR: bb162866-d447-11f0-86a8-325096b39f47`, 20, 55);
+  doc.text(`Original Amount: EUR 3,000,000.00`, 20, 65);
+  doc.text(`Ordering Party: MMG Capital Limited`, 20, 75);
+  doc.text(`Intended Beneficiary: Quick Step General Trading LLC`, 20, 85);
+  doc.text(`Reason: Regulatory compliance rejection by ADIB Dubai.`, 20, 95);
+  
+  doc.setFontSize(9);
+  doc.setTextColor(150, 150, 150);
+  doc.text("Verified by SWIFT gpi Tracking Service. Timestamp: 09-Feb-2026", 20, 115);
+  
+  doc.save('Cancellation_Advice_ADIB.pdf');
+});
+
+document.getElementById('helpBtn').addEventListener('click', () => {
+  alert("If you encounter any difficulties, you can contact us via info@verify-swift.com.");
+});
+</script>
+</body>
+</html>
